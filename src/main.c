@@ -18,7 +18,7 @@
 int FNGRAM = 2; 		/*says which ngrams we will be using (2 is default) */
 int FMODE = 0; 		/* determine mode of program, 0 - generete text (default), 1- generet statistics*/
 int FQUAWORD = 1024;	/*says how many word can product generator */
-char FDBEXIT[] = "";
+char FDBEXIT[] = "";    /* path of file where our dabase will be sotored */
 char FFILEEXITPATH[] = "prodtekst_wynik.txt";   /* datermine path of exit file for generator or statistic creator*/
 char FSTRWORD[] = "";	/* determine starting word/fraze for generetor or sttistic creator */
 

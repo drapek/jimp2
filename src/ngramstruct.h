@@ -1,3 +1,6 @@
+#ifndef NGRAMSTRUCT_H
+#define NGRAMSTRUCT_H
+
 #include <stdlib.h>
 
 /* it's store ponters to char arrays, it made for quick managing collections of strings */
@@ -37,3 +40,5 @@ int ngram_add(ngram * this, char * what);
 
 /* */
 int ngram_free(ngram * this);
+
+#endif
