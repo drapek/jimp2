@@ -5,7 +5,7 @@
 
 #include "statistic.h"
 
-int statistics(ngram * ngramstack, char * fraza) {
+int statistics(ngram * ngramstack, char * phrase, char * file_path) {
     return 0;
 }
 

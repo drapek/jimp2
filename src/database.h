@@ -9,13 +9,13 @@
 
 /*save dynamic array of chars to string in binary mode (nedded because normaly it's 
 save memory adress of pointer instead string */
-int save_arr_char_to_file(char * string, FILE * output);
+;
 
 /* save active database of ngrams to a file */
 int save_ngram(ngram * ngramstack, char * file_path);
 
 /* read array chars to dynamic array (nedded for the same reason as function save_arr_char_to_file */
-char * read_arr_char_from_file(FILE * input);
+staitc char * read_arr_char_from_file(FILE * input);
 
 /*read form binary database file a ngrams and save it to and of ngramstack */
 int read_ngram(ngram * ngramstack, char * file_path);

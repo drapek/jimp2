@@ -1,5 +1,5 @@
 C=gcc
-CFLAGS=-DDEBUG #to compile with debug mode
+CFLAGS=-Ddebug #to compile with debug mode
 
 prodtekst: generator.o statistic.o errors.o ngramstruct.o database.o textfile_analize.o
 	$(CC) $(CFLAGS) $^ main.c -o $@

@@ -28,9 +28,14 @@ ngram * ngram_init() {
     return NULL;
 }
 
-/*search in ngram word collection which are the same, start searching in ngram by word number <search_start_position>, and compare <num_collect> elements of vector <word_collect>, and <instace> descirbe which isntance it serach (nedded for seraching the same ngrams).  Function return pointer to  whole ngram converted to dynamic char array. If null returned it means thath ngram was not found.*/
+/* [ABONDED] search in ngram word collection which are the same, start searching in ngram by word number <search_start_position>, and compare <num_collect> elements of vector <word_collect>, and <instace> descirbe which isntance it serach (nedded for seraching the same ngrams).  Function return pointer to  whole ngram converted to dynamic char array. If null returned it means thath ngram was not found.
 char * ngram_search(ngram * this, char ** word_collect, int num_collect, int search_start_position,  int instance) {
     return NULL;
+} */
+
+/*finds sufix in all ngram structure */
+char ** ngram_find_sufixs(ngram structure, char ** prefix, int num_prefix) {
+	return NULL;
 }
 
 /*add at end of stucture */

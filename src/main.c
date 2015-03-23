@@ -14,15 +14,15 @@
 
 #define MAXINT 32767
 
-/*golbal flags*/
-int FNGRAM = 2; 		/*says which ngrams we will be using (2 is default) */
-int FMODE = 0; 		/* determine mode of program, 0 - generete text (default), 1- generet statistics*/
-int FQUAWORD = 1024;	/*says how many word can product generator */
-char FDBEXIT[] = "";    /* path of file where our dabase will be sotored */
-char FFILEEXITPATH[] = "prodtekst_wynik.txt";   /* datermine path of exit file for generator or statistic creator*/
-char FSTRWORD[] = "";	/* determine starting word/fraze for generetor or sttistic creator */
+/*golbal flags, visible only inside this file*/
+static int FNGRAM = 2; 		/*says which ngrams we will be using (2 is default) */
+static int FMODE = 0; 		/* determine mode of program, 0 - generete text (default), 1- generet statistics*/
+static int FQUAWORD = 1024;	/*says how many word can product generator */
+static char FDBEXIT[] = "";    /* path of file where our dabase will be sotored */
+static char FFILEEXITPATH[] = "prodtekst_wynik.txt";   /* datermine path of exit file for generator or statistic creator*/
+static char FSTRWORD[] = "";	/* determine starting word/fraze for generetor or sttistic creator */
 
-int check_flags(int argc, char *argv[]);
+static int check_flags(int argc, char *argv[]);
 
 void main(int argc, char * argv[]) {
 	
@@ -31,7 +31,7 @@ void main(int argc, char * argv[]) {
 } 
 
 /*recognize flags and set approprate variables*/
-int check_flags(int argc, char * argv[] ){
+static int check_flags(int argc, char * argv[] ){
 	int opt;
 	int tmp;
 	int is_db_or_file = 0; //is readen at least one databes or one textfile
@@ -54,7 +54,6 @@ int check_flags(int argc, char * argv[] ){
 			 if(tmp > 0 && tmp <= 20)
 				FNGRAM = tmp;
 			 else {
-				// [DELETE] char * information[] = "Niepoprawnie podany ngram, dopszuczalne są z zakresu od 1 do 20, a podany został: ";
 				error( 1, 0, strcat("Niepoprawnie podany ngram, dopszuczalne są z zakresu od 1 do 20, a podany został: ", optarg ));
 			 }
 			 break;
@@ -64,7 +63,6 @@ int check_flags(int argc, char * argv[] ){
 			 if(tmp > 0 && tmp <= MAXINT) 
 				FQUAWORD = tmp;
 			 else {
-				//[DELETE] char * information[] = "Niepoprawnie podana liczba słów, dopszuczalne ilość słów waha się od 1 do 32767, a przez ciebie podana liczba to: ";
 				error( 1, 0, strcat("Niepoprawnie podana liczba słów, dopszuczalne ilość słów waha się od 1 do 32767, a przez ciebie podana liczba to: ", optarg ));
 			 }
 			 break;
@@ -84,14 +82,12 @@ int check_flags(int argc, char * argv[] ){
 			 else if( optarg[0] == 's')
 				FMODE = 1;
 			 else {
-					//[DELETE] char * information[] = "Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie),a ty podałeś: ";
 				error( 1, 0,  strcat("Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie),a ty podałeś: ", optarg ));
 			 }
 			 break;
 
 		  default:
 			 /*[IMPORTANT] add information about using program (which flags are allowed etc) */
-			 //[DELETE] char * information[] = "Invalid parametr has been used! Check documentation before using!
 			 error( 1, 0, "Invalid parametr has been used! Check documentation before using!");
 			 break;
  

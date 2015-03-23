@@ -9,6 +9,6 @@
 #include "ngramstruct.h"
 #include "errors.h"
 
-int statistics(ngram * ngramstack, char * fraza);
+int statistics(ngram * ngramstack, char * phrase, char * file_path);
 
 #endif
