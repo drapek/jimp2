@@ -1,0 +1,84 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[MeX]{polski}
+\usepackage[utf8]{inputenc}
+
+\usepackage{geometry}
+\newgeometry{tmargin=3cm, bmargin=3cm, lmargin=2cm, rmargin=2cm} 
+
+
+
+\author{Paweł Drapiewski}
+\title{Specyfikacja funkcjonalna programu "Wyprodukuj tekst". }
+\frenchspacing
+
+
+\begin{document}
+
+
+	\begin{center}
+		\textbf{\huge Specyfikacja funkcjonalna programu "Wyprodukuj tekst".  } 
+		\\ Projekt na zajęcia: \textit{"Języki i Metodyka Programowania"}
+		\\ wydz. Elektryczny Politechniki Warszawskiej, rok akademicki 2014/2015
+		\\ wykonał: Paweł Drapiewski
+	\end{center}
+
+\section{Opis ogólny programu}
+
+	Program służył do tworzenia zdań na podstawie zestawu plików tekstowych zawierających przykładowe zdania, lub na podstawie istniejącej bazy danych.
+	
+	Użytkownikiem docelowym programu jest osoba która ma pewną wiedzę komputerową, gdyż do obsługi programu jest wymagane użycie powłoki tekstowej. Z założenia główną grupą odbiorców są programiści chcący zastosować ten rodzaj "sztucznej inteligencji" w swoich programach. 
+	
+\section{Opis funkcjonalności}
+	Program uruchamiany jest przy pomocy komendy \textbf{prodtekst} \textit{parametry} [słowo\_rozpoczynajace], gdzie w przypadku nie podania żadnego słowa rozpoczynającego lub braku tego słowa w programowej bazie, zostanie ono wylosowane z istniejących. 
+	\\
+	\\
+	Dostępne parametry i opisy funkcji z nimi związane: 
+	\begin{itemize}
+		\item \textbf{-p} plik1 [,plik2, ...] - powoduje dołączenie pliku tekstowego będące wzorcem dla generatora tekstu. Może być ich kilka, jeden po drugi rozdzielone znakiem przecinka. 
+		
+		\item \textbf{-b} baza\_danych1 [, baza\_danych2, ...] - daje możliwość podłączenia pliku z gotową bazą danych, zawierającą zbiór n-gramów. 
+		
+		\item \textbf{-n} nGram - jest to liczba, określająca na jakiej bazie n-gramów będzie tworzony tekst. Parametr ten ma wysoki wpływ na merytoryczną poprawność produkowanego tekstu. Wartością domyślą jest liczba 2.
+		
+		\item \textbf{-d} IleSłów - określa ile maksymalnie słów ma zawierać produkowany tekst. Domyślnie jest to 1024 słów.
+		\item \textbf{-z} plikwynikowy - pozwala na określenie pliku do którego nastąpi zapisanie wynikowego tekstu lub statystyk. Domyślnie program utworzy/nadpisze plik prodtekst\_wynik.txt
+	\item \textbf{-x} plik\_do\_zapisu\_bazydanych - pozwala zapisać bazę n-gramów do pliku, w celu późniejszego użycia w tym programie. Domyślnie program nie podejmuje tej akcji.
+		\item \textbf{-t} \{p, s\} - określa tryb w jakim program działa. Gdzie \textit{p} jest trybem domyślnym i oznacza produkcję tekstu. A \textit{s} jest trybem statystyki, czyli zajmuję się budowaniem statystki.
+		\item \textbf{-v} - włącza tzw. "tryb gadatliwy", czyli na standardowe wyjście program wypisywał będzie wyniki działania programu oraz informację o aktualnie przetwarzanych modułach.
+	\end{itemize}
+
+\section{Format danych i struktura plików}
+	\subsection{Struktura katalogów} 
+	
+	Program jest umieszczony w jednym katalogu z bazami danych w postaci plików binarnych, oraz dodatkowego pliku tekstowego niezależnego od użytkownika przechowującego logi programu.
+	
+	\subsection{Struktura plików}
+	\begin{itemize}
+	\item \textbf{ Pliku wejściowego} \\
+		Jest to plik tekstowy kodowany w UTF-8, reprezentujący zestaw form zdaniowych, które posłużą za wzorzec dla generatora tekstu.
+	\item \textbf{ Pliku wyjściowego} \\
+		Plikiem wyjściowym jest plik tekstowy kodowany w UTF-8, zawierający utworzony przez program tekst.
+	\item \textbf{ Pliku przechowującego logi programu} \\
+		Jest to plik tekstowy zapisany w standardzie CSV. Przechowuje on informacje o błędach jakie wystąpiły podczas działania programu. Każda z takich informacji jest rozdzielona znakiem nowej linii. Pojedyncza informacja jest reprezentująca przez następujące pola: data i godzina wystąpienia błędu, kod błędu, treść błędu, plik(i) wejściowe programu, plik(i) wyjściowe programu. Same pola są rozdzielone średnikami,  a dodatkowo pola tekstowe są opakowane w znaki cudzysłowu.
+	\item \textbf{ Pliku przechowującego bazę danych} \\
+		Baza danych programu będzie przechowywana w pliku binarnym. Początek pliku stanowią informację o przechowywanych danych takie jak: typ przechowywanych n-gramów (czyli czy są to 2-gramy, 3-gramy itp) oraz ilość przechowywanych n-gramów. A za tymi informacjami będą umieszczone kolejne struktury danych reprezentujące pojedynczy n-gram.
+		\end{itemize}
+
+	
+\section{Scenariusz działania programu}
+	\subsection{Scenariusz ogólny}
+	\begin{enumerate}
+		\item Uruchom i przeanalizuj parametry wejściowe pod względem poprawności, błędy zasygnalizuj informacją wypisaną na ekran oraz do logów.
+		\item Przeanalizuj zadane pliki i dodaj przeanalizowane dane do swojej bazy danych. Pliki niespełniające wytycznych zignoruj, a informacje o tym fakcie wypisz na ekran oraz do logów programu.
+		\item Zależnie od wybranego trybu: 
+			\begin{enumerate}
+				\item Produkuj tekst
+				\item Utwórz statystyki
+			\end{enumerate}
+		\item Zapisz dane do pliku, ewentualnie wypisz je na ekran
+		\item Zakończ program
+	\end{enumerate}
+	
+\section{Testowanie}
+	Testowanie programu odbędzie się przy pomocy standardowych narzędzi dla programów pisanych w C dla programów konsolowych, czyli m.in. przy pomocy programu o nazwie "valgrind", który służy do badania wycieków pamięci. A przede wszystkim testowanie będzie oparte o wielokrotne uruchamianie programu na różnych zestawach danych (w szczególności gotowych dziełach literackich), w celu wykrycia błędów programu, a w przypadkach błędów "ukrytych" (czyli ujawniających się podczas działania programu) zostanie użyty "GNU Debbuger".
+\end{document}
