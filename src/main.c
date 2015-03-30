@@ -24,12 +24,18 @@ enum ERRORS_TYPES {
     ERR_CRITIC /* close program */
 };
 
+enum PROGRAM_MODES {
+    MODE_GENERETE, /* genereate text and some statistics*/
+    MODE_STATISTIC /*generete only statistic of input text */
+};
+
 /*golbal flags, visible only inside this file*/
 static int FNGRAM = 2; 		/*says which ngrams we will be using (2 is default) */
-static int FMODE = 0; 		/* determine mode of program, 0 - generete text (default), 1- generet statistics*/
+static int FMODE = MODE_GENERETE; 		/* determine mode of program, 0 - generete text (default), 1- generet statistics*/
 static int FQUAWORD = 1024;	/*says how many word can product generator */
 static char FDBEXIT[1024] = "";    /* path of file where our dabase will be sotored */
 static char FFILEEXITPATH[1024] = "prodtekst_wynik.txt";   /* datermine path of exit file for generator or statistic creator*/
+static char FFILEEXITSTATISTICS[1024] = ""; /*output filepath where statistic will be stored */
 static char FSTRWORD[4096] = "";	/* determine starting word/fraze for generetor or sttistic creator */
 
 static int check_flags(int argc, char *argv[]);
@@ -48,8 +54,12 @@ static int check_flags(int argc, char * argv[] ){
 	int opt;
 	int tmp;
 	int is_db_or_file = 0; //is readen at least one databes or one textfile
+	extern char * optarg;
+     char * usage = 
+	"Krótki opis wywołania programu\n"
+	"koniec krótkiego opisu programu \n\n";
 
-     while((opt = getopt(argc, argv, "p:b:n:d:z:x:t")) != -1) {
+     while((opt = getopt(argc, argv, "p:b:n:d:z:x:t:")) != -1) {
 	   switch (opt) {
 		  case 'p': //read filepath of text-pattern files
 			 is_db_or_file = 1;
@@ -76,7 +86,7 @@ static int check_flags(int argc, char * argv[] ){
 			 if(tmp > 0 && tmp <= MAXINT) 
 				FQUAWORD = tmp;
 			 else {
-				program_error( 1, 0, strcat("Niepoprawnie podana liczba słów, dopszuczalne ilość słów waha się od 1 do 32767, a przez ciebie podana liczba to: ", optarg ));
+				program_error( 1, 0, strcat("Niepoprawnie podana liczba słów, dopszuczalne ilość słów waha się od 1 do MAXINT, a przez ciebie podana liczba to: ", optarg ));
 			 }
 			 break;
 
@@ -88,14 +98,18 @@ static int check_flags(int argc, char * argv[] ){
 			 strcpy(FDBEXIT, optarg);
 			 break;
 
-		  case 't': //determine mode of program
-			 /*gdy wybrany tryb to produkcja*/
-			 if( strcmp(optarg, "p") == 0 ) 
+		  case 't'://determine mode of program
+			 ; /*beacasue in C is not allowed to put declaration after label ('t':) */
+			 /*because strcmp is not working with optarg*/
+			 char tmp_mode[10] = "AdamMalys\0";
+			 strcpy(tmp_mode, optarg);
+
+			 if( tmp_mode[0] == 'p' ) 
 				;
-			 else if( optarg == "s")
-				FMODE = 1;
+			 else if( tmp_mode[0] == 's')
+				FMODE = MODE_STATISTIC;
 			 else {
-				program_error( 1, 0,  strcat("Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie),a ty podałeś: ", optarg ));
+				program_error( 1, 0, "Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie)");
 			 }
 			 break;
 
@@ -109,7 +123,8 @@ static int check_flags(int argc, char * argv[] ){
 	   
 	   /*check if at least one input file is readed*/
 	   if(!is_db_or_file) {
-		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Nie podałeś pliku z bazą danych lub pliku z tekstem wejściowym!");
+		  printf("%s", usage);
+		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Nie podałeś pliku z bazą danych lub pliku z tekstem wejściowym!"); 
 	   }
 
 	#ifdef debug

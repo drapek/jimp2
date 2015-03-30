@@ -6,24 +6,21 @@
 /* it's store ponters to char arrays, it made for quick managing collections of strings */
 typedef struct str {
     char * field;
-    struct str * next;
+    struct str * prev;
 } string_stock;
 
 
 /* this functions describes string_stack which store dynamic arrays of string. */
-void string_stock_push(string_stock where, char * what );
+void string_stock_push(string_stock * where, char * what );
 
 /* take last string from stock */
-char * string_stock_pop(string_stock from);
+char * string_stock_pop(string_stock * from);
 
 /* initial new string stock and return pointer to this stock*/
 string_stock * string_stock_init();
 
-/* double the size of sting stock */
-static string_stock * string_stock resize(string_stock from);
-
 /* free the memory which string_stock take */
-int string_stock_free(string_stock what);
+int string_stock_free(string_stock * what);
 
 /* struct describinig instance of words from one input file */
 struct word_collect {
