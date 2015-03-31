@@ -14,17 +14,7 @@
 
 #define MAXINT 32767
 
-/*nedded to log file, says where error ocurrs*/
-enum ERRORS_CODES {
-    ERR_FLAG_INTERPRET /*error occurs in check_flags function */
-};
-
-enum ERRORS_TYPES {
-    ERR_NORMAL, /* only print errors */
-    ERR_CRITIC /* close program */
-};
-
-enum PROGRAM_MODES {
+static enum PROGRAM_MODES {
     MODE_GENERETE, /* genereate text and some statistics*/
     MODE_STATISTIC /*generete only statistic of input text */
 };

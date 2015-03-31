@@ -26,7 +26,7 @@ int string_stock_free(string_stock * what);
 struct word_collect {
     char ** words;
     char * name_file; //file name where the words comes from
-    int * num_words; //number of readed words
+    int num_words; //number of readed words
 };   
 
 /*structure which store collection of structurs, which store readed words */
