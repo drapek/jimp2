@@ -11,10 +11,10 @@ typedef struct str {
 
 
 /* this functions describes string_stack which store dynamic arrays of string. */
-void string_stock_push(string_stock * where, char * what );
+void string_stock_push(string_stock **where, char * what );
 
 /* take last string from stock */
-char * string_stock_pop(string_stock * from);
+char * string_stock_pop(string_stock **from);
 
 /* initial new string stock and return pointer to this stock*/
 string_stock * string_stock_init();
@@ -47,6 +47,9 @@ int ngram_add(ngram * this, char ** words_collect, int num_words, char * file_na
 
 /*finds sufix in all ngram structure */
 char ** ngram_find_sufixs(ngram structure, char ** prefix, int num_prefix);
+
+/*list content of all ngram structure */
+void ngram_list_all( ngram * this);
 
 /* */
 int ngram_free(ngram * this);

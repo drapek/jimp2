@@ -10,7 +10,11 @@ int main(int argc, char ** argv) {
     }
           
     ngram * baza_ngramow = ngram_init();
+
+    ngram_list_all( baza_ngramow );
     ngram_add( baza_ngramow, argv, argc, "argumenty wywołania");
+    ngram_list_all( baza_ngramow );
+
     ngram_free( baza_ngramow );
 	   
 }

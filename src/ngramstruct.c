@@ -3,28 +3,24 @@
 
 #define NGRAM_STRUCT_LIMIT 40
 
-/*[IMPORTANT] string_stock functions aren't working! */
-
 /* this functions describes string_stack which store dynamic arrays of string. */
-void string_stock_push(string_stock * where, char * what ) {
+void string_stock_push(string_stock ** where, char * what ) {
+    if( what == NULL ) 
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Nastąpiła próba dodania pustego wskaźnika na string_stoss (funkcja string_stock_push)");
     string_stock * new = malloc( sizeof * new );
     new->field = what;
-    new->prev = where;
+    new->prev = *where;
 
-    /*[IMPORTANT] the addres is assigned, but somehow when program go out this function,
-    the where have non stop the same address*/
-    where = new;
-
-
+    *where = new;
 }
 
 /* take last string from stock */
-char * string_stock_pop(string_stock * from) {
-    if(from != NULL) {
-	   char * temp_addr = from->field;
-	   string_stock * temp = from;
-	   free(temp);
-	   from = from->prev;
+char * string_stock_pop(string_stock ** from) {
+    if(*from != NULL) {
+	   char * temp_addr = (**from).field;
+	   void * del = *from;
+	   *from = (**from).prev;
+	   free(del);
 	   return temp_addr;
     } else 
 	   return NULL;
@@ -41,6 +37,8 @@ string_stock * string_stock_init() {
 
 /* free the memory which string_stock take */
 int string_stock_free(string_stock * what) {
+    /*[IMPORTANT] not working, fix it in later time! */
+	   return 0;
     string_stock * temp = what;
     string_stock * temp2 = NULL;
     while(temp->prev != NULL) {
@@ -50,7 +48,7 @@ int string_stock_free(string_stock * what) {
 	   temp2 = temp;
 	   temp = temp->prev;
     }
-    /*czyści ostatni element*/
+    /*clear the last element*/
     free(temp->field);
     free(temp->prev);
     free(temp);
@@ -109,6 +107,35 @@ char ** ngram_find_sufixs(ngram structure, char ** prefix, int num_prefix) {
 	return NULL;
 }
 
+/*list content of every ngram stored in memory */
+void ngram_list_all( ngram * this) {
+    int i;
+    if( this->ngram_elem == 0 )
+	   printf("stos ngram jest pusty\n");
+    else {
+	   for( i = 0; i < this->ngram_elem; i++) {
+		  printf("\t element nr %i:\t nazwa pliku: %s, ilość słów: %i, wczytane słowa: ", i, this->one_file[i].name_file, this->one_file[i].num_words);
+		  if( this->one_file[i].num_words < 1 ) 
+			 printf(" [brak słów] ");
+		  else {
+			 int num_words = this->one_file[i].num_words;
+			 /*limit to printf max 5 words */
+			 if( num_words > 5 ) 
+				num_words = 5;
+			 /*print words*/
+			 int j;
+			 printf("[ ");
+			 for( j = 0; j < num_words; j++ ) {
+				printf("%s\"%s\"", (j == 0) ? "" : ", ", this->one_file[i].words[j]);
+			 }
+			 if( num_words == 5) 
+				printf(", ... ");
+			 printf("]");
+		  }
+		  printf("\n");
+	   }
+    }
+}
 
 /*free all memory which sturct ngram takes*/
 int ngram_free(ngram * this) {
