@@ -1,7 +1,18 @@
 #include "ngramstruct.h"
 #include "errors.h"
+#include <string.h>
 
 #define NGRAM_STRUCT_LIMIT 40
+
+/* function to list all data from struct file_path */
+void file_paths_list( file_paths this) {
+    int i;
+    printf(" [ ");
+    for( i = 0; i < this.num_path; i++ )
+	  printf("%s\"%s\"", (i == 0) ? "" : ", ", this.file_path[i]);
+    printf(" ]");
+
+}
 
 /* this functions describes string_stack which store dynamic arrays of string. */
 void string_stock_push(string_stock ** where, char * what ) {
@@ -57,6 +68,68 @@ int string_stock_free(string_stock * what) {
     return 0;
 }
 
+/*init structure word_collect by size of 200 elements and return pointer to them */
+word_collect * word_collect_init(char * file_name) {
+    word_collect * new = malloc( sizeof(* new));
+    new->words = malloc( sizeof( new->words ) * 200);
+    if( new->words == NULL )
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "brak pamięci operacyjnej, by stworzyć strukturę przechowującą slowa (word_collect_init)");
+	   
+    new->name_file = file_name;
+    new->size_words = 200;
+    new->num_words = 0;
+
+    return new;
+   
+}
+
+/* return the size of char dynamic array, this function is nedded in word_collect_add */
+static int dyn_arr_size(char * arr) {
+    int i = 0;
+    while( *(arr++) != '\0') 
+	   i++;
+    return i;
+}
+/*add word to a structure, and when it neede it can resize themself by 200 elements */
+void word_collect_add(word_collect * where, char * what) {
+    if( where->num_words >= where->size_words ) {
+	   void * new =  realloc( where->words, sizeof( where->words ) * (where->size_words + 200));
+	   if( new == NULL )
+		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "brak pamięci operacyjnej, by powiększyć strukturę przechowującą słowa (funk word_collect_add)");
+	   else {
+		  where->words = new;
+		  where->size_words += 200;
+	   }
+   }
+	   
+	   size_t size = dyn_arr_size( what ) + 1;
+	   where->words[where->num_words] = malloc( ( size = sizeof( char ) * size ) );
+	   if( where->words[where->num_words] == NULL)
+		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Brak pamięci dla zallokowania pamięci dla wczytanego słowa z pliku (funk word_collect_add)");
+	   memcpy(where->words[where->num_words], what, size);
+
+	   where->num_words++;
+}
+
+/*list to stdout the content of given word_collect struct */
+void word_collect_list(word_collect * what, int how_many) {
+    int i;
+    int isLimited = 1;
+    if (how_many == 0) isLimited = 0; 
+    printf(" [ ");
+    for(i = 0; i < what->num_words; i++ ) {
+	   printf("%s%s", (i == 0) ? "":", ", what->words[i]);
+	   if( isLimited )
+		  if (i == how_many) break;
+	   
+    }
+    printf(" ] ");
+}
+
+/* free the memory after it is not needed, mostly at the end of the program */
+void word_collect_free() {
+
+}
 
 /*create and initiaze new ngram and return a pointer to them*/
 ngram * ngram_init() {
@@ -71,6 +144,7 @@ ngram * ngram_init() {
     return new;
 }
 
+/* [IMPORANT] rewrite this function, so it can take word_collect structure and assing it to ngram handler*/
 /*add at end of stucture */
 int ngram_add(ngram * this, char ** words_collect, int num_words, char * file_name) {
     /*check if there is space to add*/

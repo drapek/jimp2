@@ -6,7 +6,7 @@
 ** contact: drapiewki.pawel@wp.pl                                 **
 ** program right owner: Politechnika Warszawska                   **
 *******************************************************************/
-
+    
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h> /*for functions which serve input arguments */
@@ -153,6 +153,8 @@ static int find_start_wrd(int argc, char** argv) {
     while( argv[wrd_start][0] != '@' ) {
 	   if( argv[wrd_start][0] == '-' ) {
 		  isMinus = 1;
+		  /* [IMPORTANT] because of problem with "-" paramters, the start word must be preceded by @*/
+		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Słowo ropoczynające musi być poprzedzone poprzez @ i znajdować się na końcu argumentów!");
 		  break;
 	   }
 	   wrd_start--;
@@ -196,20 +198,17 @@ static void list_all_flags() {
        "FFILEEXITPATH \t= \"%s\" \n" 
 	  , FNGRAM, FMODE, FQUAWORD, FDBEXIT, FFILEEXITPATH);
 
-    printf("text_files \t= [ ");
-    for( i = 0; i < text_files.num_path; i++ )
-	  printf("%s\"%s\"", (i == 0) ? "" : ", ", text_files.file_path[i]);
-    printf(" ]\n");
+    printf("text_files \t=");
+    file_paths_list(text_files); 
+    printf("\n");
 
-    printf("db_files \t= [ ");
-    for( i = 0; i < db_files.num_path; i++ )
-	  printf("%s\"%s\"", (i == 0) ? "" : ", ", db_files.file_path[i]);
-    printf(" ]\n");
+    printf("db_files \t=");
+    file_paths_list(db_files); 
+    printf("\n");
     
-    printf("start words \t= [ ");
-    for( i = 0; i < start_words.num_path; i++ )
-	  printf("%s\"%s\"", (i == 0) ? "" : ", ", start_words.file_path[i]);
-    printf(" ]\n");
+    printf("start_words \t=");
+    file_paths_list(start_words); 
+    printf("\n");
 
     printf("\n");
 

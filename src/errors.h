@@ -7,7 +7,8 @@
 /*nedded to log file, says where error ocurrs*/
 enum ERRORS_CODES {
     ERR_FLAG_INTERPRET, /*error occurs in check_flags function */
-    ERR_NGRAM_STRUCT /*errors occurs in ngramstruct module */
+    ERR_NGRAM_STRUCT, /*errors occurs in ngramstruct module */
+    ERR_TXT_ANALIZ /* .. in text_analizator */
 };
 
 enum ERRORS_TYPES {
