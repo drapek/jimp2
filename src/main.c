@@ -27,13 +27,14 @@ static int FQUAWORD = 1024;	/*says how many word can product generator */
 static char FDBEXIT[1024] = "";    /* path of file where our dabase will be sotored */
 static char FFILEEXITPATH[1024] = "prodtekst_wynik.txt";   /* datermine path of exit file for generator or statistic creator*/
 static char FFILEEXITSTATISTICS[1024] = ""; /*output filepath where statistic will be stored */
-static char FSTRWORD[4096] = "";	/* determine starting word/fraze for generetor or sttistic creator */
 static file_paths text_files; /*store pointer to argv where text files paths starts */
 static file_paths db_files; /*store pointer to argv where database files paths starts */
+static file_paths start_words; /*brutal but esay way to store starts words, because this structure fit perfect for this purpose*/
 
 static int check_flags(int argc, char *argv[]);
 static void list_all_flags();
 static void read_file_paths(int argc, char ** argv, char * flag);
+static int find_start_wrd(int argc, char** argv);
 
 void main(int argc, char * argv[]) {
     
@@ -47,7 +48,8 @@ void main(int argc, char * argv[]) {
 static int check_flags(int argc, char * argv[] ){
 	int opt;
 	int tmp;
-	int is_db_or_file = 0; //is readen at least one databes or one textfile
+	int is_db = 0; /*if it dabase is readen */
+	int is_file = 0; /*if it text file is readen */
 	extern char * optarg;
      char * usage = 
 	"Krótki opis wywołania programu\n"
@@ -58,16 +60,24 @@ static int check_flags(int argc, char * argv[] ){
     text_files.num_path = 0;
     db_files.file_path = NULL;
     db_files.num_path = 0;
+    start_words.file_path = NULL;
+    start_words.num_path = 0;
 
     while((opt = getopt(argc, argv, "p:b:n:d:z:x:t:")) != -1) {
 	   switch (opt) {
 		  case 'p': //read filepath of text-pattern files
-			 is_db_or_file = 1;
+			 if(is_file)
+				program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Podałeś dwa razy paramter -p! co jest nie dopuszczalne.");
+
+			 is_file = 1;
 			 read_file_paths(argc, argv, "-p");
 			 break;
 
 		  case 'b': //read filepath of databases 
-			 is_db_or_file = 1;
+			 if( is_db )
+				program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Podałeś dwa razy paramter -b! co jest nie dopuszczalne.");
+
+			 is_db = 1;
 			 read_file_paths(argc, argv, "-b");
 			 break;
 
@@ -76,7 +86,7 @@ static int check_flags(int argc, char * argv[] ){
 			 if(tmp > 1 && tmp <= 20)
 				FNGRAM = tmp;
 			 else {
-				program_error( 1, 0, strcat("Niepoprawnie podany ngram, dopszuczalne są z zakresu od 1 do 20, a podany został: ", optarg ));
+				program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Niepoprawnie podany ngram, dopszuczalne są z zakresu od 1 do 20.");
 			 }
 			 break;
 
@@ -85,7 +95,7 @@ static int check_flags(int argc, char * argv[] ){
 			 if(tmp > 0 && tmp <= MAXINT) 
 				FQUAWORD = tmp;
 			 else {
-				program_error( 1, 0, strcat("Niepoprawnie podana liczba słów, dopszuczalne ilość słów waha się od 1 do MAXINT, a przez ciebie podana liczba to: ", optarg ));
+				program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Niepoprawnie podana liczba słów, dopszuczalna ilość słów waha się pomiędzy 1 a 32767.");
 			 }
 			 break;
 
@@ -99,8 +109,7 @@ static int check_flags(int argc, char * argv[] ){
 
 		  case 't'://determine mode of program
 			 ; /*beacasue in C is not allowed to put declaration after label ('t':) */
-			 /*because strcmp is not working with optarg*/
-			 char tmp_mode[10] = "AdamMalys\0";
+			 char tmp_mode[10] = "";
 			 strcpy(tmp_mode, optarg);
 
 			 if( tmp_mode[0] == 'p' ) 
@@ -108,31 +117,75 @@ static int check_flags(int argc, char * argv[] ){
 			 else if( tmp_mode[0] == 's')
 				FMODE = MODE_STATISTIC;
 			 else {
-				program_error( 1, 0, "Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie)");
+				program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Podałeś niepoprawny tryb programu, doposzczalne to s dla statystyki, oraz p dla produkcji (domyślnie)");
 			 }
 			 break;
 
 		  default:
 			 /*[IMPORTANT] add information about using program (which flags are allowed etc) */
-			 program_error( 1, 0, "Invalid parametr has been used! Check documentation before using!");
+			 program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Invalid parametr has been used! Check documentation before using!");
 			 break;
 			 
 		  }
 	   }
-	   
+	  
+	   /*finds statring words */
+	   find_start_wrd(argc, argv);
 	   /*check if at least one input file is readed*/
-	   if(!is_db_or_file) {
+	   if(!is_db && !is_file) {
 		  printf("%s", usage);
-		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Nie podałeś pliku z bazą danych lub pliku z tekstem wejściowym!"); 
+		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Nie podałeś pliku z bazą danych lub pliku z tekstem wejściowym! A musi choć jedna z nich zostać wczytana."); 
 	   }
 
 	#ifdef debug
 	/*listing all readed parametrs*/
-	list_all_flags(); 
+	list_all_flags(argc, argv); 
      #endif
 
 	return 0;
 } 
+
+/*function which finds a start word to generator at the and of argv and return pointer to array with words, but if it impossible to find it's only return NULL pointer */
+static int find_start_wrd(int argc, char** argv) {
+    argc--; /*because argv[argc] is null pointer */
+    int wrd_start = argc;
+    int isMinus = 0;
+    while( argv[wrd_start][0] != '@' ) {
+	   if( argv[wrd_start][0] == '-' ) {
+		  isMinus = 1;
+		  break;
+	   }
+	   wrd_start--;
+	   if(wrd_start == 0 )
+		  return 1; /* because argv[0] is alway the name of program */
+	   
+    }
+    
+    wrd_start++; /* to point one cell after "-..." or "@" */
+    if( isMinus )
+	   wrd_start++; /*because flgas "-..." has one argument after them */
+
+    int num_of_wrd = argc - wrd_start + 1;
+    if( num_of_wrd <= 0 )
+	   return 1; /*return that start word can't be find */
+
+    char ** new = malloc( sizeof( *new ) * num_of_wrd);
+    if( new == NULL ) 
+	  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Brak pamięci dla stworzenia tablicy przechowującej słowa startowe (funk find_start_wrd)");
+    
+    int i;
+    for( i = 0; i < num_of_wrd; i++ ) {
+	   size_t size = dyn_arr_size( argv[wrd_start + i] ) + 1;
+	   new[i] = malloc( ( size = sizeof( char ) * size ) );
+	   if( new[i] == NULL)
+		  program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Brak pamięci dla zallokowania dla zapisania słów startowych w pamięci (funk find_start_wrd)");
+	   memcpy(new[i], argv[wrd_start + i], size);
+    }
+
+    start_words.file_path = new;
+    start_words.num_path = num_of_wrd;
+    return 0;
+}
 
 static void list_all_flags() {
     int i;
@@ -141,20 +194,25 @@ static void list_all_flags() {
 	  "FQUAWORD \t= %i\n"
 	  "FDBEXIT \t= \"%s\" \n"
        "FFILEEXITPATH \t= \"%s\" \n" 
-       "FSTRWORD \t= \"%s\"\n"
-	  , FNGRAM, FMODE, FQUAWORD, FDBEXIT, FFILEEXITPATH, FSTRWORD);
+	  , FNGRAM, FMODE, FQUAWORD, FDBEXIT, FFILEEXITPATH);
 
-    printf("text_files: \t= [ ");
+    printf("text_files \t= [ ");
     for( i = 0; i < text_files.num_path; i++ )
 	  printf("%s\"%s\"", (i == 0) ? "" : ", ", text_files.file_path[i]);
     printf(" ]\n");
 
-    printf("db_files: \t= [ ");
+    printf("db_files \t= [ ");
     for( i = 0; i < db_files.num_path; i++ )
 	  printf("%s\"%s\"", (i == 0) ? "" : ", ", db_files.file_path[i]);
     printf(" ]\n");
- 
+    
+    printf("start words \t= [ ");
+    for( i = 0; i < start_words.num_path; i++ )
+	  printf("%s\"%s\"", (i == 0) ? "" : ", ", start_words.file_path[i]);
+    printf(" ]\n");
+
     printf("\n");
+
 }
 
 /* return the size of dynamic char array */
@@ -200,6 +258,7 @@ static void read_file_paths(int argc, char ** argv, char * flag) {
 		  memcpy(new[i], argv[argv_position + i], size);
 	   }
 
+	   /* change to assign to a new array not argv*/
 	   if( strcmp("-p", flag) == 0 ) {
 		  text_files.file_path = new;
 		  text_files.num_path = num_of_paths;
