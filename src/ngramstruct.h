@@ -3,6 +3,12 @@
 
 #include <stdlib.h>
 
+/* stors pointer to dynamic array (argv) where the filepaths starts */
+typedef struct {
+    char ** file_path;
+    int num_path; /*the number of paths in this sturcture */
+} file_paths;
+
 /* it's store ponters to char arrays, it made for quick managing collections of strings */
 typedef struct str {
     char * field;
