@@ -8,7 +8,8 @@
 enum ERRORS_CODES {
     ERR_FLAG_INTERPRET, /*error occurs in check_flags function */
     ERR_NGRAM_STRUCT, /*errors occurs in ngramstruct module */
-    ERR_TXT_ANALIZ /* .. in text_analizator */
+    ERR_TXT_ANALIZ, /* .. in textfile_analize module*/
+    ERR_DB_HANDL /* .. in database module*/
 };
 
 enum ERRORS_TYPES {

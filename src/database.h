@@ -15,9 +15,9 @@ save memory adress of pointer instead string */
 int save_ngram(ngram * ngramstack, char * file_path);
 
 /* read array chars to dynamic array (nedded for the same reason as function save_arr_char_to_file */
-staitc char * read_arr_char_from_file(FILE * input);
+staitc char * read_arr_char_from_file( FILE * from );
 
 /*read form binary database file a ngrams and save it to and of ngramstack */
-int read_ngram(ngram * ngramstack, char * file_path);
+int read_ngrams(ngram * ngramstack, char * file_path);
 
 #endif

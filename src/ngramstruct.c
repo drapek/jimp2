@@ -146,17 +146,16 @@ ngram * ngram_init() {
 
 /* [IMPORANT] rewrite this function, so it can take word_collect structure and assing it to ngram handler*/
 /*add at end of stucture */
-int ngram_add(ngram * this, char ** words_collect, int num_words, char * file_name) {
+int ngram_add(ngram * this, word_collect * what) {
     /*check if there is space to add*/
     if( (this->ngram_size) <= (this->ngram_elem) ) {
-	   /*resize double*/
 	   /*limit readed ngrams because to few can cause realloc errors */
 	   if( this->ngram_size >= NGRAM_STRUCT_LIMIT ) {
-		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Zbyt duża liczba wczytanych plików, maksymalnie jest to NGRAM_STRUCT_LIMIT"); 
-		  return 0;
+		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Zbyt duża liczba wczytanych plików, maksymalnie jest to 40."); 
 		  }
 
-	   void * new =  realloc( this->one_file, sizeof( *new ) * this->ngram_size * 2);
+	   /*resize double*/
+	   word_collect * new =  realloc( this->one_file, sizeof( *new ) * this->ngram_size * 2);
 	   if( new == NULL )
 		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "brak pamięci operacyjnej, by powiększyć strukturę przechowującą ngramy (ngram_add function error)");
 	   else {
@@ -165,10 +164,13 @@ int ngram_add(ngram * this, char ** words_collect, int num_words, char * file_na
 	   }
     }
 
-    this->one_file[this->ngram_elem].num_words = num_words;
-    this->one_file[this->ngram_elem].name_file = file_name;
-    this->one_file[this->ngram_elem].words = words_collect;
+    this->one_file[this->ngram_elem].num_words = what->num_words;
+    this->one_file[this->ngram_elem].name_file = what->name_file;
+    this->one_file[this->ngram_elem].words = what->words;
+    this->one_file[this->ngram_elem].size_words = what->size_words;
+
     this->ngram_elem++;
+    return 0;
 }
 
 /* [ABONDED] search in ngram word collection which are the same, start searching in ngram by word number <search_start_position>, and compare <num_collect> elements of vector <word_collect>, and <instace> descirbe which isntance it serach (nedded for seraching the same ngrams).  Function return pointer to  whole ngram converted to dynamic char array. If null returned it means thath ngram was not found.

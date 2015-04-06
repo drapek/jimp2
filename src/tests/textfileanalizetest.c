@@ -6,7 +6,7 @@
 
 static void argv_to_file_paths(file_paths * global, int argc, char ** argv);
 
-void main( int argc, char ** argv) {
+int main( int argc, char ** argv) {
     if( argc < 2 ) {
 	   printf("Jako argumenty podaj ścieżki plików z tekstem\n");
 	   exit(1);
@@ -19,9 +19,11 @@ void main( int argc, char ** argv) {
     file_paths_list(global);
     printf("\n");
     
-    ngram * global_ngram;
-    analize(global_ngram, &global );
-
+    ngram * global_ngram = ngram_init();
+    analize(global_ngram, &global, 2);
+   
+    printf("###############koniec programu!\n");
+    return 0;
 }
 
 /* return the size of dynamic char array */
