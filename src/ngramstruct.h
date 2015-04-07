@@ -73,10 +73,13 @@ int ngram_add(ngram * this, word_collect * what);
 /*finds sufix in all ngram structure */
 char ** ngram_find_sufixs(ngram structure, char ** prefix, int num_prefix);
 
-/*list content of all ngram structure */
-void ngram_list_all( ngram * this);
+/*list content of all ngram structure, limit says how many words will be printed, when it is equal to 0, then there is no limit */
+void ngram_list( ngram * this, int limit);
 
 /* */
 int ngram_free(ngram * this);
+
+/*delete comma from last position of file paths (only if it exit here of coure) */
+void delete_comma_from_path(char * text);
 
 #endif

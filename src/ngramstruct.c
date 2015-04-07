@@ -184,8 +184,12 @@ char ** ngram_find_sufixs(ngram structure, char ** prefix, int num_prefix) {
 }
 
 /*list content of every ngram stored in memory */
-void ngram_list_all( ngram * this) {
+void ngram_list( ngram * this, int limit) {
     int i;
+
+    int isLimited = 1;
+    if ( limit == 0) isLimited = 0;
+
     if( this->ngram_elem == 0 )
 	   printf("stos ngram jest pusty\n");
     else {
@@ -195,16 +199,17 @@ void ngram_list_all( ngram * this) {
 			 printf(" [brak słów] ");
 		  else {
 			 int num_words = this->one_file[i].num_words;
-			 /*limit to printf max 5 words */
-			 if( num_words > 5 ) 
-				num_words = 5;
+			 if( isLimited )
+				if( num_words > limit ) 
+				    num_words = limit;
+
 			 /*print words*/
 			 int j;
 			 printf("[ ");
 			 for( j = 0; j < num_words; j++ ) {
 				printf("%s\"%s\"", (j == 0) ? "" : ", ", this->one_file[i].words[j]);
 			 }
-			 if( num_words == 5) 
+			 if( num_words < this->one_file[i].num_words) 
 				printf(", ... ");
 			 printf("]");
 		  }
@@ -216,4 +221,13 @@ void ngram_list_all( ngram * this) {
 /*free all memory which sturct ngram takes*/
 int ngram_free(ngram * this) {
     return 0;
+}
+
+/*delete comma from last position of file paths (only if it exit here of coure) */
+void delete_comma_from_path(char * text) {
+    int i = 0;
+    while( *text++ != '\0' ) i++;
+    text -= 2;
+    if( *text == ',')
+	   *text = '\0';
 }

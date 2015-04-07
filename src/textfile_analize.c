@@ -76,10 +76,3 @@ static int word_validator(char * word) {
     return 0;
 }
 
-static void delete_comma_from_path(char * text) {
-    int i = 0;
-    while( *text++ != '\0' ) i++;
-    text -= 2;
-    if( *text == ',')
-	   *text = '\0';
-}

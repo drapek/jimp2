@@ -15,7 +15,4 @@ static int line_anal(string_stock interpreted_line, FILE * input);
 /* check given word if it is valid to add to database */
 static int word_validator(char * word);
 
-/*delete comma from last position of given text (nedded to file paths) */
-static void delete_comma_from_path(char * text);
-
 #endif
