@@ -82,4 +82,21 @@ int ngram_free(ngram * this);
 /*delete comma from last position of file paths (only if it exit here of coure) */
 void delete_comma_from_path(char * text);
 
+/* structure to store addreses from strings array -> need to make_prefix_arr from generate.c */
+typedef struct {
+    char ** arr;
+    int num_elem;
+    int size_of_arr;
+} address_arr;
+
+/* init the array of char ** adresses */
+address_arr * adress_arr_init();
+
+/*add address of what to where structure */
+void address_arr_add(adress_arr * where, char ** what);
+
+/*free memory of pointers, but not free memory where words are stored! */
+void address_arr_free(adress_arr * );
+
+
 #endif
