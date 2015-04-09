@@ -1,6 +1,7 @@
 #include "ngramstruct.h"
 #include "errors.h"
 #include <string.h>
+#include <stdlib.h>
 
 #define NGRAM_STRUCT_LIMIT 40
 
@@ -231,3 +232,62 @@ void delete_comma_from_path(char * text) {
     if( *text == ',')
 	   *text = '\0';
 }
+
+/* init the array of char ** adresses */
+address_arr * address_arr_init() {
+    address_arr * new = malloc (sizeof * new);
+    if( new == NULL )
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by utworzyć tablicę dyn dla sufixów");
+
+    new->arr = malloc( sizeof *(new->arr) * 10);
+    if( new->arr == NULL)
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by utworzyć tablicę wskaźników dla adresów sufixów");
+
+    new->num_elem = 0;
+    new->size_of_arr = 10;
+
+    return new;
+
+}
+
+/*add address of what to where structure */
+void address_arr_add(adress_arr * where, char * what) {
+    if( where->num_elem >= where->size_of_arr ) {
+	   char ** new = realloc(where->arr, sizeof( *new ) * where->size_of_arr + sizoef( *new) * 10);
+	   if( new == NULL ) {
+		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by powiększyć tablicę wskaźników dla sufixów!");
+	   } 
+	   else {
+		  where->arr = new;
+		  where->size_of_arr += 10;
+	   }
+    }
+
+    where->arr[num_elem] = what;
+    where->num_elem++;
+}
+
+/*free memory of pointers, but not free memory where words are stored! */
+void address_arr_free(adress_arr * what) {
+    free( what->arr );
+    free( what );
+}
+
+/* list all elements from this sturcture */
+void address_arr_list(address_arr * what, int limit) {
+    int isLimit = 1;
+    /*if we give 0 at the second argument means, that we don't want limit printing */
+    if( limit == 0)
+	   isLimit = 0;
+    
+    printf("Struktura address_arr, jej rozmiar to: %i, a ilość wczytanych elementów to: %i, elementy wczytane są następujące: \n [ ", what->size_of_arr, what->num_elem);
+    int i;
+    for( i = 0; i < what->num_elem; i++) {
+	   if( limit == 0 ) break;
+	   printf("\"%s\" addr: %p\t ", what->arr[i], &(what->arr[i])); 
+	   limit--;
+    }
+    printf("] \n");
+}
+
+

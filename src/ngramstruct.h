@@ -90,13 +90,16 @@ typedef struct {
 } address_arr;
 
 /* init the array of char ** adresses */
-address_arr * adress_arr_init();
+address_arr * address_arr_init();
 
 /*add address of what to where structure */
-void address_arr_add(adress_arr * where, char ** what);
+void address_arr_add(adress_arr * where, char * what);
 
 /*free memory of pointers, but not free memory where words are stored! */
 void address_arr_free(adress_arr * );
+
+/* list all elements from this sturcture */
+void address_arr_list(address_arr * what, int limit);
 
 
 #endif
