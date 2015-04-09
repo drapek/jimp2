@@ -20,25 +20,25 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
 	   program_error(ERR_CRITIC, ERR_GENERAT, "Nie mogę utworzyć pliku w tym miejscu, może nie mam praw do tego katalogu?");
     }
 
+    srand( time(NULL) );
+
     /*if user not give start words radnom some */
     if( start_word->num_path == 0 ) 
-	   rand_start(start_word, ngram_type);
+	   rand_start(ngramstack, start_word, ngram_type);
     
-    /*sets atual ngram to start_ngram */
-    int pos_of_ngram_in_str_wrd = start_word->num_path - ngram_type;
-    if( pos_of_ngram_in_str_wrd < 0 )
+    /*check if given num path is enought length */
+    if( ( start_word->num_path - ngram_type ) < 0 )
 	   program_error(ERR_CRITIC, ERR_GENERAT, "Podany ciąg wejściowy jest zbyt krótki w porównaniu do ngramu, przez co nie mogę wygenerować tekstu! Porada: zmiejsz typ ngramu.");
-    char ** actual_ngram = start_word->file_path + pos_of_ngram_in_str_wrd;
+    address_arr * actual_ngram = address_arr_init();
+    set_actual_ngram( actual_ngram, start_word, ngram_type);
 
     int i;
     /* printf start wrods to a file, and if needed to stdout */
     for( i = 0; i < start_word->num_path; i++) {
 	   fprintf( output, "%s ", start_word->file_path[i] );
 	   if( flag_verbose )
-	   	   printf( "%s ", start_word->file_path[i] );
-    }
+	   	   printf( "%s ", start_word->file_path[i] );}
 
-    srand( time(NULL) );
     
     /* the main loop of the generator*/
     for(i = 0; i < ( max_word - start_word->num_path); i++ ) {
@@ -47,32 +47,87 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
     /* check if make_sufix find some sufix */
     if( sufixs->num_elem == 0 ) {
 	   /*if not, end generating */
+	   printf("\n[INFO] Nie mogłem znaleźć dalszych wzorćów dla ngramów, więc wygenerowałem tylko %i słów, z %i przez ciebie oczekiwanych.", i + start_word->num_path, max_word );
 	   break;
     }
 
     /* rand one sufix from sufix arr */
-    int rand_sufix = (rand() % sufix->num_elem);
+    int rand_sufix = (rand() % sufixs->num_elem);
 
-    fprintf(output, "%s ", sufix->arr[rand_sufix] );
+    fprintf(output, "%s ", sufixs->arr[rand_sufix] );
     if( flag_verbose )
-        printf("%s ", sufix->arr[rand_sufix]);
+        printf("%s ", sufixs->arr[rand_sufix]);
 
-    act_ngram_update(actual_ngram, ngram_type, sufix->arr[rand_sufix]);
+    act_ngram_update(actual_ngram, ngram_type, sufixs->arr[rand_sufix]);
+
     address_arr_free( sufixs );
     }
+    if( flag_verbose )
+	   printf("\n\n");
 
     fclose( output );
     return 0; 
 }
 
-static void rand_start(ngram * ngramstack, file_paths * start_word, int ngram_type) {
+/* rand start ngram, if user not set by themself */
+void rand_start(ngram * ngramstack, file_paths * start_word, int ngram_type) {
+    /* rand from which file in ngram stucture */
+    int i = rand() % ngramstack->ngram_elem;
+    /* rand word from randed file, and it produce only arguments, which not allow to go beyond words array border */
+    int j = rand() % (ngramstack->one_file[i].num_words - ngram_type + 1);
+    
+    start_word->file_path = malloc( sizeof( start_word->file_path ) * ngram_type );
+    int k;
+    for( k = 0; k < ngram_type; k++ ) 
+	   start_word->file_path[k] = ngramstack->one_file[i].words[j + k];
 
+    start_word->num_path = ngram_type;
 }
 
 /* make array of addresses of sufix, addreses are copied from ngram structure */
-static adress_arr * make_sufix_arr(ngram * ngramstack, char ** actual_ngram, int ngram_type ) {
+address_arr * make_sufix_arr(ngram * ngramstack, address_arr * actual_ngram, int ngram_type ) {
     /* it musn't malloc new memory, it is enough to assign addresses from ngram sturcture */
+    int i,j, k;
+    address_arr * sufixs = address_arr_init();
+
+    /* in every files store in ngram structure */
+    for( i = 0; i < ngramstack->ngram_elem; i++ ) {
+	   /*for every ngram in given file */
+	   for( j = 0; j <  (ngramstack->one_file[i].num_words - (ngram_type - 1)); j++ ) {
+		  int isEqual = 1;
+		  for( k = 0; k < ngram_type - 1; k++ ) {
+			 if( strcmp(ngramstack->one_file[i].words[j + k], actual_ngram->arr[k + 1]) != 0 ) {
+				isEqual = 0;
+				break;
+			 }
+		  }
+		  if( isEqual ) {
+			 address_arr_add( sufixs, ngramstack->one_file[i].words[j + k]);
+		  }
+	   }
+    }
+
+    return sufixs;
 }
 
 /* update actual_ngram variable by deleting first element, moving rest by one position to front and add new sufix at the and */
-static void act_ngram_update(char ** actual_ngram, int ngram_type, char * sufix);
+void act_ngram_update(address_arr * actual_ngram, int ngram_type, char * sufix) {
+    int i;
+    for( i = 0; i < ngram_type - 1; i++) 
+	   actual_ngram->arr[i] = actual_ngram->arr[i+1];
+    /* the last positon of ngram */
+    actual_ngram->arr[i] = sufix;
+
+    if( actual_ngram->num_elem != ngram_type )
+	   program_error(ERR_CRITIC, ERR_GENERAT, "Przy odnawianiu ngramu odkryto że nie jest on tego typu co powinien... Gdzieś nastąpił poważny błąd (funk act_ngram_update )");
+}
+
+/* set actual_ngram to start ngram given by start_word */
+void set_actual_ngram(address_arr * actual_ngram, file_paths * start_word, int ngram_type) {
+    int i;
+    if( actual_ngram->num_elem != 0 )
+	   program_error(ERR_CRITIC, ERR_GENERAT, "By ustawić actual ngram, to powinein być on wpierw pusty! (funk set_actual_ngram)");
+    for( i = ( start_word->num_path - ngram_type ); i < start_word->num_path; i++)
+	   address_arr_add(actual_ngram, start_word->file_path[i]);
+}
+

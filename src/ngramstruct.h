@@ -93,10 +93,10 @@ typedef struct {
 address_arr * address_arr_init();
 
 /*add address of what to where structure */
-void address_arr_add(adress_arr * where, char * what);
+void address_arr_add(address_arr * where, char * what);
 
 /*free memory of pointers, but not free memory where words are stored! */
-void address_arr_free(adress_arr * );
+void address_arr_free(address_arr * );
 
 /* list all elements from this sturcture */
 void address_arr_list(address_arr * what, int limit);

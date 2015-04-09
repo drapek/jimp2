@@ -19,6 +19,30 @@ int main( int argc, char ** argv) {
     address_arr_add(temp, fifth);
     
     /* print this array */
-    
+    address_arr_list( temp, 0);
 
+    address_arr_free( temp );
+
+    /*this should be empty */
+    address_arr_list( temp, 0); 
+
+    /*but this should be such as at start*/
+    printf("Start elements: [ ");
+    printf("%s ", first);
+    printf("%s ", second);
+    printf("%s ", third);
+    printf("%s ", fourth);
+    printf("%s ", fifth);
+    printf("]\n");
+    
+    /* test to overflow size given in init, to test malloc in address_arr_addi */
+    address_arr * from_argv = address_arr_init();
+    int i;
+    for( i = 0; i < argc; i++ )
+	   address_arr_add(from_argv, argv[i]);
+
+    address_arr_list( from_argv, 0);
+    address_arr_free( from_argv );
+    
+    return 0;
 }

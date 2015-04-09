@@ -251,9 +251,9 @@ address_arr * address_arr_init() {
 }
 
 /*add address of what to where structure */
-void address_arr_add(adress_arr * where, char * what) {
+void address_arr_add(address_arr * where, char * what) {
     if( where->num_elem >= where->size_of_arr ) {
-	   char ** new = realloc(where->arr, sizeof( *new ) * where->size_of_arr + sizoef( *new) * 10);
+	   char ** new = realloc(where->arr, sizeof( *new ) * where->size_of_arr + sizeof( *new) * 10);
 	   if( new == NULL ) {
 		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by powiększyć tablicę wskaźników dla sufixów!");
 	   } 
@@ -263,12 +263,12 @@ void address_arr_add(adress_arr * where, char * what) {
 	   }
     }
 
-    where->arr[num_elem] = what;
+    where->arr[where->num_elem] = what;
     where->num_elem++;
 }
 
 /*free memory of pointers, but not free memory where words are stored! */
-void address_arr_free(adress_arr * what) {
+void address_arr_free(address_arr * what) {
     free( what->arr );
     free( what );
 }
@@ -276,18 +276,29 @@ void address_arr_free(adress_arr * what) {
 /* list all elements from this sturcture */
 void address_arr_list(address_arr * what, int limit) {
     int isLimit = 1;
-    /*if we give 0 at the second argument means, that we don't want limit printing */
+    /*if we give 0 at the second argument, that means we don't want limit printing */
     if( limit == 0)
 	   isLimit = 0;
-    
-    printf("Struktura address_arr, jej rozmiar to: %i, a ilość wczytanych elementów to: %i, elementy wczytane są następujące: \n [ ", what->size_of_arr, what->num_elem);
-    int i;
-    for( i = 0; i < what->num_elem; i++) {
-	   if( limit == 0 ) break;
-	   printf("\"%s\" addr: %p\t ", what->arr[i], &(what->arr[i])); 
-	   limit--;
+
+    if( what == NULL ) {
+	   program_error(ERR_NORMAL, ERR_NGRAM_STRUCT, "Podana struktura jest pusta!");
+	   return;
+    } else {
+	   if( what->arr == NULL ) {
+		  program_error(ERR_NORMAL, ERR_NGRAM_STRUCT, "W strukturze addres_arr tablica argumentów jest pusta!");
+	   	  return;
+	   } else {
+		  printf("Struktura address_arr, jej rozmiar to: %i, a ilość wczytanych elementów to: %i, elementy wczytane są następujące: \n [ ", what->size_of_arr, what->num_elem);
+		  int i;
+	       for( i = 0; i < what->num_elem; i++) {
+	   	  if( isLimit )
+			 if( limit == 0 ) break;
+	   	  printf("\"%s\" addr: %p\t ", what->arr[i], &(what->arr[i])); 
+	   	  limit--;
+		  }
+	       printf("] \n");
+	   }
     }
-    printf("] \n");
 }
 
 
