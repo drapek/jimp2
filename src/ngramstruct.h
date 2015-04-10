@@ -101,5 +101,29 @@ void address_arr_free(address_arr * );
 /* list all elements from this sturcture */
 void address_arr_list(address_arr * what, int limit);
 
+/*struture to store the numer of occurrences of given ngram*/
+typedef struct {
+    char ** ptr_to_words; /*size of this is describe by ngram_type from stats struct*/
+    int num_of_occur; /*how many times this ngram occurs*/
+} one_ngram;
+
+typedef struct {
+    one_ngram * arr_of_ngrams;
+    int ngram_type; /* the type of stored ngrams */
+    int num_of_elem;
+    int size_of_arr;
+} stats;
+
+/*init sturt for 50 elements*/
+stats * stats_init(int ngram_type);
+
+/*add ngram to a structure, byt when it alredy exit it increment porper value*/
+void stats_add(stats * where, char ** actual_ngram, int ngram_type);
+
+void stats_free(stats * what);
+
+/*list whole given stats structure */
+void stats_list(stats * what);
+
 
 #endif

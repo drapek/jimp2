@@ -301,4 +301,79 @@ void address_arr_list(address_arr * what, int limit) {
     }
 }
 
+/*init struct for 50 elements*/
+stats * stats_init(int ngram_type) {
+    stats * new = malloc (sizeof * new);
+    if( new == NULL )
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by utworzyć tablicę dla statystyk");
 
+    new->arr_of_ngrams = malloc( sizeof *(new->arr_of_ngrams) * 50);
+    if( new->arr_of_ngrams == NULL)
+	   program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by utworzyć tablicę wskaźników dla adresów sufixów");
+
+    new->num_of_elem = 0;
+    new->size_of_arr = 50;
+    new->ngram_type = ngram_type;
+
+    return new;
+}
+
+/*add ngram to a structure, byt when it alredy exit it increment porper value*/
+void stats_add(stats * where, char ** actual_ngram, int ngram_type) {
+    if( where->num_of_elem >= where->size_of_arr ) {
+	   one_ngram * new = realloc(where->arr_of_ngrams, sizeof( *new ) * where->size_of_arr + sizeof( *new) * 50);
+	   if( new == NULL ) {
+		  program_error(ERR_CRITIC, ERR_NGRAM_STRUCT, "Brak pamięci by powiększyć tablicę statystyk");
+	   } 
+	   else {
+		  where->arr_of_ngrams = new;
+		  where->size_of_arr += 50;
+	   }
+    }
+
+    if( where->ngram_type != ngram_type ) {
+	   program_error(ERR_NORMAL, ERR_STATS, "Podany ngram nie zgadza się z tymi odłożonymi w struturze stats! Dlatego przerwałem dodawanie!");
+	   return;
+    }
+
+    /*serch this ngram in stats collection */
+    int i, j, isFound = 0;
+    for( i = 0; i < where->num_of_elem; i++) {
+	  int isEqual = 1;
+	  for( j = 0; j < where->ngram_type; j++ ) {
+		  if( strcmp(where->arr_of_ngrams[i].ptr_to_words[j], actual_ngram[j]) != 0 ) {
+			 isEqual = 0;
+			 break;
+		  }
+	  }
+
+	  if( isEqual ) {
+		  isFound = 1;
+		  where->arr_of_ngrams[i].num_of_occur++;
+		  break;
+	  }
+    }
+
+    if(!isFound) {
+	   where->arr_of_ngrams[where->num_of_elem].ptr_to_words = actual_ngram;
+	   where->arr_of_ngrams[where->num_of_elem].num_of_occur = 1;
+	   where->num_of_elem++;
+    }
+}
+
+void stats_free(stats * what) {
+    free( what->arr_of_ngrams );
+    free( what );
+}
+
+void stats_list(stats * what) {
+    printf("Strutra ma wczytanych %i ngramów, gdzie n= %i. A pamięć jest zaalokowana na %i ngramów. \n", what->num_of_elem, what->ngram_type, what->size_of_arr);
+    int i,j;
+    for( i = 0; i < what->num_of_elem; i++) {
+	   printf("\t Ngram %i = \"", i);
+	   for(j = 0; j < what->ngram_type; j++)
+		  printf(" %s ", what->arr_of_ngrams[i].ptr_to_words[j]);
+	   printf("\" i wystąpił %i razy. \n", what->arr_of_ngrams[i].num_of_occur);
+    }
+    printf("\n");
+}

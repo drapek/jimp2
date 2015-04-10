@@ -10,7 +10,8 @@ enum ERRORS_CODES {
     ERR_NGRAM_STRUCT, /*errors occurs in ngramstruct module */
     ERR_TXT_ANALIZ, /* .. in textfile_analize module*/
     ERR_DB_HANDL, /* .. in database module*/
-    ERR_GENERAT /* ... in generate module*/
+    ERR_GENERAT, /* ... in generate module*/
+    ERR_STATS /* ... in statitic module */
 };
 
 enum ERRORS_TYPES {
