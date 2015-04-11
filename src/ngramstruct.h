@@ -118,7 +118,7 @@ typedef struct {
 stats * stats_init(int ngram_type);
 
 /*add ngram to a structure, byt when it alredy exit it increment porper value*/
-void stats_add(stats * where, char ** actual_ngram, int ngram_type);
+void stats_add(stats * where, char *** actual_ngram, int ngram_type);
 
 void stats_free(stats * what);
 

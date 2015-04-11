@@ -5,12 +5,18 @@
 #ifndef STATISTIC_H
 #define STATISTIC_H
 
+#include "ngramstruct.h"
+
 /*generete statistic of input words if flag statistic is set, it make statitic for whole database*/
 int statistics(ngram * ngramstack, char * phrase, char * file_path);
 
 /* it make statistics based only on genered text, not the whole database*/
-void gener_stats(stats * readed_ngrams);
+void gener_stats(stats * readed_anagrams, stats * readed_ngrams, char ** file_path, int nmb_of_top_ngrams);
 
-/* to count PMI for some ngram we need counted ngrams, and counted anagrams (words) */
-static PMI(stats * db_ngrams,  stats * db_anagrams, char ** checked_ngram, int ngram_type);
+/* to count PMI for all ngram from db_ngrams */
+double PMI(stats * db_ngrams,  stats * db_anagrams, FILE * where_print);
+
+/*list n most frequent ngram*/
+void list_top_ngrams(stats * readed_ngrams, int nmb_of_top_ngrams, FILE * where_print) {
+ 
 #endif

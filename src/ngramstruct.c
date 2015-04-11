@@ -319,7 +319,7 @@ stats * stats_init(int ngram_type) {
 }
 
 /*add ngram to a structure, byt when it alredy exit it increment porper value*/
-void stats_add(stats * where, char ** actual_ngram, int ngram_type) {
+void stats_add(stats * where, char *** actual_ngram, int ngram_type) {
     if( where->num_of_elem >= where->size_of_arr ) {
 	   one_ngram * new = realloc(where->arr_of_ngrams, sizeof( *new ) * where->size_of_arr + sizeof( *new) * 50);
 	   if( new == NULL ) {
@@ -341,7 +341,7 @@ void stats_add(stats * where, char ** actual_ngram, int ngram_type) {
     for( i = 0; i < where->num_of_elem; i++) {
 	  int isEqual = 1;
 	  for( j = 0; j < where->ngram_type; j++ ) {
-		  if( strcmp(where->arr_of_ngrams[i].ptr_to_words[j], actual_ngram[j]) != 0 ) {
+		  if( strcmp(where->arr_of_ngrams[i].ptr_to_words[j], actual_ngram[0][j]) != 0 ) {
 			 isEqual = 0;
 			 break;
 		  }
@@ -355,7 +355,7 @@ void stats_add(stats * where, char ** actual_ngram, int ngram_type) {
     }
 
     if(!isFound) {
-	   where->arr_of_ngrams[where->num_of_elem].ptr_to_words = actual_ngram;
+	   where->arr_of_ngrams[where->num_of_elem].ptr_to_words = *actual_ngram;
 	   where->arr_of_ngrams[where->num_of_elem].num_of_occur = 1;
 	   where->num_of_elem++;
     }
@@ -370,10 +370,10 @@ void stats_list(stats * what) {
     printf("Strutra ma wczytanych %i ngramów, gdzie n= %i. A pamięć jest zaalokowana na %i ngramów. \n", what->num_of_elem, what->ngram_type, what->size_of_arr);
     int i,j;
     for( i = 0; i < what->num_of_elem; i++) {
-	   printf("\t Ngram %i = \"", i);
+	   printf("\t Ngram %i, wystąpił %i razy = \"", i, what->arr_of_ngrams[i].num_of_occur);
 	   for(j = 0; j < what->ngram_type; j++)
-		  printf(" %s ", what->arr_of_ngrams[i].ptr_to_words[j]);
-	   printf("\" i wystąpił %i razy. \n", what->arr_of_ngrams[i].num_of_occur);
+		  printf("%s%s", (j == 0) ? "" : " ",  what->arr_of_ngrams[i].ptr_to_words[j]);
+	   printf("\"\n");
     }
     printf("\n");
 }

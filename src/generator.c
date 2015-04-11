@@ -1,5 +1,6 @@
 #include "generator.h"
 #include "errors.h"
+#include "statistic.h"
 #include <stdlib.h>
 
 /* this is the furure, which will be added in short time to main*/
@@ -32,12 +33,27 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
     address_arr * actual_ngram = address_arr_init();
     set_actual_ngram( actual_ngram, start_word, ngram_type);
 
+    /* stutures which store genreted text in special struturs to make statists on them later */
+    stats * anagrams = stats_init( 1 );
+    stats * ngrams = stats_init( ngram_type );
+
     int i;
+    char ** tmp_ptr;
+    /*read all starts words into ngram strutures intented for statistics */
+    for( i = 0; i < start_word->num_path; i++ ) {
+	   tmp_ptr = start_word->file_path + i;
+	   stats_add(anagrams, &tmp_ptr, 1);
+	   /* it is beacasue another way it will be copy null pointers beyond start_word struct */
+	   if( i < (start_word->num_path - ngram_type + 1) )
+		  stats_add(ngrams, &tmp_ptr, ngram_type );
+    }
+
     /* printf start wrods to a file, and if needed to stdout */
     for( i = 0; i < start_word->num_path; i++) {
 	   fprintf( output, "%s ", start_word->file_path[i] );
 	   if( flag_verbose )
-	   	   printf( "%s ", start_word->file_path[i] );}
+	   	   printf( "%s ", start_word->file_path[i] );
+    }
 
     
     /* the main loop of the generator*/
@@ -57,13 +73,31 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
     fprintf(output, "%s ", sufixs->arr[rand_sufix] );
     if( flag_verbose )
         printf("%s ", sufixs->arr[rand_sufix]);
-
+    
     act_ngram_update(actual_ngram, ngram_type, sufixs->arr[rand_sufix]);
+   
+   /* add sufix to anagrams (word collector) and new actual ngram to ngrams colletor*/
+    tmp_ptr = sufixs->arr + rand_sufix;
+    stats_add(anagrams, &tmp_ptr, 1);
+    tmp_ptr = actual_ngram->arr;
+    stats_add(ngrams, &tmp_ptr, ngram_type);
 
     address_arr_free( sufixs );
     }
+
+
     if( flag_verbose )
 	   printf("\n\n");
+
+    /*run statistic maker*/
+    gener_stats(anagrams, ngrams);
+
+    /*[IMPORTANT] to check validating of addresing * necessearily delete this later*/
+    ngram_list( ngramstack, 0 );
+
+    /*clear sturtures which are not needed (this from statistic)*/
+    stats_free( anagrams );
+    stats_free( ngrams );
 
     fclose( output );
     return 0; 

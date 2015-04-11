@@ -7,12 +7,29 @@ int main( int argc, char ** argv ) {
 	   printf("Podaj jakieś argumenty, i najlepiej jak będa to bigramy które będą się powtarzać. A następnie przy pomocy gdb (debbugera) sprawdź jak wygląda zapisana struktura!");
     }
     
-    stats * input_stat = stats_init( 2 );
+/*anagrams*/
+    stats * ana_stat = stats_init( 1 );
 
     int i;
     /*add argv arguments to stats structure*/
+    for( i = 1; i < argc; i ++) {
+	   char ** tmp = ++argv;
+	   stats_add(ana_stat, &tmp, 1);
+    }
+    argv -= (i - 1);
+
+    printf("Tak wygląda struktra stats dla anagramów: \n");
+    stats_list( ana_stat );
+    printf("\n");
+    stats_free( ana_stat );
+
+/* bigrams */
+    stats * input_stat = stats_init( 2 );
+
+    /*add argv arguments to stats structure*/
     for( i = 1; i < argc - 1; i ++) {
-	   stats_add(input_stat, ++argv, 2);
+	   argv++;
+	   stats_add(input_stat, &argv, 2);
     }
     argv -= (i - 1);
 
@@ -26,7 +43,8 @@ int main( int argc, char ** argv ) {
 
     /*add argv arguments to stats structure*/
     for( i = 1; i < argc - 2; i ++) {
-	   stats_add(tri_stat, ++argv, 3);
+	   argv++;
+	   stats_add(tri_stat, &argv, 3);
     }
     argv -= (i - 1);
 
@@ -40,7 +58,8 @@ int main( int argc, char ** argv ) {
 
     /*add argv arguments to stats structure*/
     for( i = 1; i < argc - 3; i ++) {
-	   stats_add(quadro_stat, ++argv, 4);
+	   argv++;
+	   stats_add(quadro_stat, &argv, 4);
     }
     argv -= (i - 1);
 
