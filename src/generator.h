@@ -6,7 +6,7 @@
 #include "errors.h"
 
 /*generete ngrams to file using Marov chains saved in struct ngramstack*/
-int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int max_word, char * file_path);
+int generate_text(ngram * ngramstack, file_paths * start_word, int ngram_type, int max_word, char * file_path);
 
 /* rand start ngram, if user not set by themself */
 void rand_start(ngram * ngramstack, file_paths * start_word, int ngram_type);

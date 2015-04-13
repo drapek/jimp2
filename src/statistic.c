@@ -12,7 +12,7 @@
 #include <limits.h>
 
 int statistics(ngram * ngramstack, char * phrase, char * file_path) {
-    printf("Opcja ta zostanie udostępniona w kolejnej wersji programu! Aby być na bierząco śledź nas na: https://github.com/drapek/jimp2 i\n");
+    printf("Opcja generowania statystyk zostanie udostępniona w kolejnej wersji programu! Aby być na bierząco śledź nas na: https://github.com/drapek/jimp2 i\n");
 }
 
 /* it make statistics based only on genered text, not the whole database*/

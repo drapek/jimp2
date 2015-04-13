@@ -8,7 +8,7 @@ int flag_verbose = 1;
 
 
 /* First open file to wirte text, next generete step by step words using Marokov chains, and save it to file */
-int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int max_word, char * file_path) {
+int generate_text(ngram * ngramstack, file_paths * start_word, int ngram_type, int max_word, char * file_path) {
     /* first check if check if file exist, and if so, then write information about this */
     FILE * check = fopen( file_path, "r" );
     if( check != NULL) {
@@ -77,10 +77,13 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
     act_ngram_update(actual_ngram, ngram_type, sufixs->arr[rand_sufix]);
    
    /* add sufix to anagrams (word collector) and new actual ngram to ngrams colletor*/
-    tmp_ptr = sufixs->arr + rand_sufix;
+   /*
+   [IMPORTANT - THE STATS MODULE ISN'T WORKING WELL, AND HERE FROM TIME TO TIME APPERED 
+   CORE DUMB ERROR (PROBABLY IN STRCMP WAS NULL POINTER) 
+   tmp_ptr = sufixs->arr + rand_sufix;
     stats_add(anagrams, &tmp_ptr, 1);
     tmp_ptr = actual_ngram->arr;
-    stats_add(ngrams, &tmp_ptr, ngram_type);
+    stats_add(ngrams, &tmp_ptr, ngram_type); */
 
     address_arr_free( sufixs );
     }
@@ -90,10 +93,10 @@ int generate(ngram * ngramstack, file_paths * start_word, int ngram_type, int ma
 	   printf("\n\n");
 
     /*run statistic maker*/
-    gener_stats(anagrams, ngrams);
+    //gener_stats(anagrams, ngrams, file_path, 10);
 
     /*[IMPORTANT] to check validating of addresing * necessearily delete this later*/
-    ngram_list( ngramstack, 0 );
+    //ngram_list( ngramstack, 0 );
 
     /*clear sturtures which are not needed (this from statistic)*/
     stats_free( anagrams );
@@ -130,6 +133,8 @@ address_arr * make_sufix_arr(ngram * ngramstack, address_arr * actual_ngram, int
 	   for( j = 0; j <  (ngramstack->one_file[i].num_words - (ngram_type - 1)); j++ ) {
 		  int isEqual = 1;
 		  for( k = 0; k < ngram_type - 1; k++ ) {
+			 if ( ngramstack->one_file[i].words[j + k] == NULL || actual_ngram->arr[k + 1] == NULL)
+				program_error(ERR_CRITIC, ERR_GENERAT, "W funkcji make sufix natknięto się na pusty wskaźnik, który miał zostać porównany! Zbadaj to koniecznie!");
 			 if( strcmp(ngramstack->one_file[i].words[j + k], actual_ngram->arr[k + 1]) != 0 ) {
 				isEqual = 0;
 				break;

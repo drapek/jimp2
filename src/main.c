@@ -12,10 +12,14 @@
 #include <unistd.h> /*for functions which serve input arguments */
 #include "errors.h" /* to send errors into log file */
 #include "ngramstruct.h"
+#include "database.h"
+#include "textfile_analize.h"
+#include "statistic.h"
+#include "generator.h"
 
 #define MAXINT 32767
 
-static enum PROGRAM_MODES {
+static enum program_modes {
     MODE_GENERETE, /* genereate text and some statistics*/
     MODE_STATISTIC /*generete only statistic of input text */
 };
@@ -37,11 +41,28 @@ static void read_file_paths(int argc, char ** argv, char * flag);
 static int find_start_wrd(int argc, char** argv);
 
 void main(int argc, char * argv[]) {
-    
-    /*it is possible that getopt is't work because it neede full parametrs of argc and argv*/
-    //check_flags(argc-1, ++argv);
-    check_flags(argc, argv);
 
+    ngram * main_db = ngram_init();
+
+    check_flags(argc, argv);
+    /* analize txt files and add words from them */
+    analize( main_db, &text_files, FNGRAM );
+    /*read ngrams from db files */
+    read_ngrams( main_db, &db_files );
+
+    if( main_db->ngram_elem < 1 )
+	   program_error(ERR_CRITIC, ERR_FLAG_INTERPRET, "Nie wczytano żadnego słowa! Sprawdź pliki wejściowe (-p i -b)");
+
+    if( strcmp( FDBEXIT, "") != 0 )
+	   /*save ngram in db */
+	   save_ngram( main_db, FDBEXIT );
+
+    if( FMODE == MODE_GENERETE )
+	   generate_text( main_db, &start_words, FNGRAM, FQUAWORD, FFILEEXITPATH);
+    else if( FMODE == MODE_STATISTIC ) 
+	   statistics( main_db, "chwilowo niedostępne", FFILEEXITSTATISTICS);
+    
+    ngram_free( main_db );
 } 
 
 /*recognize flags and set approprate variables*/
@@ -52,8 +73,10 @@ static int check_flags(int argc, char * argv[] ){
 	int is_file = 0; /*if it text file is readen */
 	extern char * optarg;
      char * usage = 
-	"Krótki opis wywołania programu\n"
-	"koniec krótkiego opisu programu \n\n";
+	"\tProgram do generacji tekstu na podstawie dostarczonych wzorców. Wywoałnie programu jest następujące\n"
+	"\t\t$./prodtekst -p pliktxt1, pliktxt2, ... -b bazadanych1, bazadanych2, ... -n TypNgramu -d ilosc_wygenerowanych_słów -z plik_do_zapisu_tekstu -x plik_do_zapisu_bazydanych -t {p, s} @ Fraza_początkowa_dla_generatora_tekstu\n"
+	"\tWszystkie flagi są opcjonalne, z jednym wyjątkiem iż conajmiej jeden plik tekstowy lub jedna baza danych musi zostać wczytana. Oraz koniecznym jest zastosowanie znaku @ rozdzielającego flagi od początkowego tekstu.\n"
+	"\tDla opcji -t, p oznacza produkcję tekstu, a s produkcję statystyk frazy wejściowej\n\n";
     
     /*initializing file paths sturctures */
     text_files.file_path = NULL;
@@ -86,7 +109,7 @@ static int check_flags(int argc, char * argv[] ){
 			 if(tmp > 1 && tmp <= 20)
 				FNGRAM = tmp;
 			 else {
-				program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Niepoprawnie podany ngram, dopszuczalne są z zakresu od 1 do 20.");
+				program_error( ERR_CRITIC, ERR_FLAG_INTERPRET, "Niepoprawnie podany ngram, dopszuczalne są z zakresu od 2 do 20.");
 			 }
 			 break;
 
@@ -128,7 +151,13 @@ static int check_flags(int argc, char * argv[] ){
 			 
 		  }
 	   }
-	  
+    
+	   /* if all obligatory flags are used then argv have minimum 3 arguments! */
+	   if( argc < 4 ) {
+		  printf("%s", usage);
+		  exit(1);
+	   }
+
 	   /*finds statring words */
 	   find_start_wrd(argc, argv);
 	   /*check if at least one input file is readed*/

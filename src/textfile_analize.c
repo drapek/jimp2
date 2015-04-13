@@ -3,6 +3,7 @@
 #include "textfile_analize.h"
 #include "ngramstruct.h"
 #include "errors.h"
+#include "limits.h"
 
 /* main function of checking and analizing file*/
 int analize(ngram * ngramstack, file_paths * file_path, int n_gram_type)  {  
@@ -25,8 +26,7 @@ int analize(ngram * ngramstack, file_paths * file_path, int n_gram_type)  {
 	   char tmpword[1024];
 	   int isNotValid = 0;
 
-	   /*[IMPORTANT] The limiter is only for testing purposes, delete it in furhter time! */ 
-	   int limiter = 1024;
+	   int limiter = INT_MAX; /* beacase for now the ngram struct is not able hold more words*/
 
 	   while( fscanf( operations, "%s\n", tmpword ) != EOF) {
 		  if( !limiter ) break;
@@ -40,8 +40,8 @@ int analize(ngram * ngramstack, file_paths * file_path, int n_gram_type)  {
 		  limiter--;
 	   }
 
-	   word_collect_list( words_from_file, 10 );
-	   printf("\n");
+	   //word_collect_list( words_from_file, 10 );
+	   //printf("\n");
 	   
 	   /*if number of readed words is less than ngram length do not assign this to database*/
 	   if (words_from_file->num_words < n_gram_type) {
